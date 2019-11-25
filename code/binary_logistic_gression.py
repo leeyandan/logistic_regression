@@ -2,6 +2,7 @@
 import numpy as np
 #%%
 class Logistic_regression:
+    '模型所使用的数据集格式：x是属性值集合,x.shape=(N, D)。y是标记{0，1}, y.shape=(N)：'
     def __init__(self, attr_num):
         self.w = np.random.random((attr_num))
     
@@ -10,30 +11,32 @@ class Logistic_regression:
         self.w = np.random.random(self.w.shape)
 
     def train(self, x, y, learning_rate, stop_interval=0.1):
-        '给定数据train_data训练到暂停间隙值stop_interval，学习率为learning_rate'
-        last_ml = self.cal_maximum_likehood(x, y)
+        '给定数据（x是属性值集合,x.shape=(N, D)。y是标记{0，1}, y.shape=(N)）训练到暂停间隙值stop_interval，学习率为learning_rate'
+        last_ml = self.__cal_maximum_likehood(x, y)
         N = x.shape[0]
         train_step = last_ml = 0 
         while True:
             train_step += 1
-            cur_ml = self.cal_maximum_likehood(x, y)
+            cur_ml = self.__cal_maximum_likehood(x, y)
             interval = abs(last_ml-cur_ml)
             right = self.evalue_model(x, y)
+            #每十步打印一次信息
             if train_step%10==0:
                 print("step:{} cur_max_likehood:{:.3f} up_abs:{:.3f} right:{}/{}={:.3f}".format(train_step, cur_ml, cur_ml-last_ml, right, N, right/N))
             last_ml =cur_ml
-            self.w = self.w + learning_rate*self.cal_derivative(x,y)
+            #更新系数
+            self.w = self.w + learning_rate*self.__cal_derivative(x,y)
             if interval<stop_interval or train_step>5000:
                 print("train_finish!")
                 break 
 
-    def cal_maximum_likehood(self, x, y):
+    def __cal_maximum_likehood(self, x, y):
         '计算对数最大似然估计值'
         t = (x@self.w)
         temp = y*t-np.log(1+np.exp(t))
         return np.sum(temp)
         
-    def cal_derivative(self, x, y):
+    def __cal_derivative(self, x, y):
         '计算导数值'
         temp =(y-1.0/(1+np.exp(-(x@self.w))))
         repeat_times = x.shape[1]
@@ -44,7 +47,7 @@ class Logistic_regression:
         return ans
 
     def evalue_model(self, x, y):
-        '评价模型，预测对了多少'
+        '评价模型，预测对了多少（x是属性值集合,x.shape=(N, D)。y是标记{0，1}, y.shape=(N)）'
         N = y.shape[0]
         p1 = 1.0/(1.0+np.exp(-(x@self.w)))
         y_predict = np.zeros(y.shape)
@@ -90,8 +93,10 @@ def prepare_data_x_y(data):
     y[np.where(y==2)] = 0
     return x,y
 
-def ten_times_test(lr_model, data_splited):
+def ten_times_test(lr_model, data_splited, learning_rate=0.0002):
     '十折测试法对模型进行测试'
+    #准确率列表
+    acc_list = []
     for i in range(len(data_splited)):
         print("----------",i,"------------")
         temp_data = data_splited.copy()
@@ -99,12 +104,14 @@ def ten_times_test(lr_model, data_splited):
         train_data = np.row_stack(temp_data)
         train_x, train_y = prepare_data_x_y(train_data)
         test_x, test_y = prepare_data_x_y(test_data)
-        lr_model.train(train_x, train_y, 0.0002, stop_interval=0.002)
+        lr_model.train(train_x, train_y, learning_rate, stop_interval=0.002)
         test_right = lr_model.evalue_model(test_x, test_y)
         test_len = test_x.shape[0]
         #重置模型进行下一次试验
         lr_model.reset_model()
         print("test:{}/{}= {:.3f}".format(test_right,test_len, test_right/test_len))
+        acc_list.append(test_right/test_len)
+    print("********** avg-accuracy: %.3f ************"%np.average(acc_list))
 
 #%%
 if __name__ == "__main__":
