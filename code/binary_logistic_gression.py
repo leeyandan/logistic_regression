@@ -1,7 +1,7 @@
 #%%
 import numpy as np
 #%%
-class Logistic_regression:
+class Binary_logistic_regression:
     '模型所使用的数据集格式：x是属性值集合,x.shape=(N, D)。y是标记{0，1}, y.shape=(N)：'
     def __init__(self, attr_num):
         self.w = np.random.random((attr_num))
@@ -118,7 +118,9 @@ if __name__ == "__main__":
     magic_data = r"data\Magic Dataset.txt"
     data = np.loadtxt(magic_data)
     data_splited = split_data(data)
-    lr = Logistic_regression(11)
+    atrribution_num = 11
+    #二分类回归模型
+    lr = Binary_logistic_regression(atrribution_num)
     ten_times_test(lr, data_splited)
     
 #能达到的训练精度和学习率有关
