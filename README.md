@@ -11,6 +11,7 @@
     + 数据集：data\Iris Dataset.txt
     + 十次测试平均准确度：0.882
 ## 2. 文档说明
++ [可以参考博客，理论推导过程都在上面写得很详细啦](https://blog.csdn.net/yan_dan/article/details/103335527)
 ## 3. 数据集
 > 数据集格式N+1类型就可以直接用，模型要求的类标用123数字化表示，数据格式由prepare_data_x_y()函数控制。
 + data\Iris Dataset.txt
